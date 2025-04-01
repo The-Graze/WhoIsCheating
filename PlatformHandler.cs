@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -10,10 +10,9 @@ namespace WhoIsCheating
     internal class PlatformHandler : MonoBehaviour
     {
         public NameTagHandler nameTagHandler;
-        public bool isOnPC;
+        public VRRig rig;
         public Texture2D pcTexture;
         public Texture2D standaloneTexture;
-        public Texture2D textureToUse;
 
         public GameObject fpPlatformIcon;
         public GameObject tpPlatformIcon;
@@ -100,42 +99,50 @@ namespace WhoIsCheating
                 tpPlatformRenderer.material = new Material(Shader.Find("UI/Default"));
             }
 
-            ApplyPlatformTexture();
+            UpdatePlatformPatchThingy();
         }
 
         public void UpdatePlatformPatchThingy()
         {
-            if (nameTagHandler.rig.concatStringOfCosmeticsAllowed.Contains("FIRST LOGIN"))
-            {
-                isOnPC = true;
-            }
-            else
-            {
-                isOnPC = false;
-            }
-            ApplyPlatformTexture();
-        }
-
-        public void ApplyPlatformTexture()
-        {
             pcTexture = LoadEmbeddedImage("WhoIsCheating.Assets.PCIcon.png");
             standaloneTexture = LoadEmbeddedImage("WhoIsCheating.Assets.MetaIcon.png");
 
-            textureToUse = isOnPC ? pcTexture : standaloneTexture;
-
-            if (fpPlatformRenderer != null && textureToUse != null)
+            if (fpPlatformRenderer != null)
             {
-                fpPlatformRenderer.material.mainTexture = textureToUse;
+                if (rig.concatStringOfCosmeticsAllowed.Contains("FIRST LOGIN"))
+                {
+                    fpPlatformRenderer.material.mainTexture = pcTexture;
+                }
+                else
+                {
+                    fpPlatformRenderer.material.mainTexture = standaloneTexture;
+                }
             }
 
-            if (tpPlatformRenderer != null && textureToUse != null)
+            if (tpPlatformRenderer != null)
             {
-                tpPlatformRenderer.material.mainTexture = textureToUse;
+                if (rig.concatStringOfCosmeticsAllowed.Contains("FIRST LOGIN"))
+                {
+                    tpPlatformRenderer.material.mainTexture = pcTexture;
+                }
+                else
+                {
+                    tpPlatformRenderer.material.mainTexture = standaloneTexture;
+                }
             }
         }
 
+        private static float lastTime = 0f;
+        private static float cooldown = 1f;
+        
         void Update()
         {
+            if (lastTime >= cooldown)
+            {
+                lastTime = 0;
+                UpdatePlatformPatchThingy();
+            }
+
             if (fpPlatformIcon != null && nameTagHandler != null)
             {
                 Transform fpTextTransform = null;
@@ -183,6 +190,8 @@ namespace WhoIsCheating
                     }
                 }
             }
+
+            lastTime += Time.deltaTime;
         }
     }
 }
