@@ -144,13 +144,14 @@ namespace WhoIsCheating
         }
 
         private static float lastTime = 0f;
-        private static float cooldown = 2.5f;
+        private static float cooldown = 5f;
+        private bool hasHappened = false;
         
         void Update()
         {
-            if (lastTime >= cooldown)
+            if (lastTime >= cooldown && !hasHappened)
             {
-                lastTime = 0;
+                hasHappened = true;
                 UpdatePlatformPatchThingy();
             }
 
