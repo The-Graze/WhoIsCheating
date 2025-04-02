@@ -12,6 +12,7 @@ namespace WhoIsCheating
         public NameTagHandler nameTagHandler;
         public VRRig rig;
         public Texture2D pcTexture;
+        public Texture2D steamTexture;
         public Texture2D standaloneTexture;
 
         public GameObject fpPlatformIcon;
@@ -22,6 +23,7 @@ namespace WhoIsCheating
         void Start()
         {
             pcTexture = LoadEmbeddedImage("WhoIsCheating.Assets.PCIcon.png");
+            steamTexture = LoadEmbeddedImage("WhoIsCheating.Assets.SteamIcon.png");
             standaloneTexture = LoadEmbeddedImage("WhoIsCheating.Assets.MetaIcon.png");
 
             if (fpPlatformIcon == null || tpPlatformIcon == null)
@@ -105,11 +107,16 @@ namespace WhoIsCheating
         public void UpdatePlatformPatchThingy()
         {
             pcTexture = LoadEmbeddedImage("WhoIsCheating.Assets.PCIcon.png");
+            steamTexture = LoadEmbeddedImage("WhoIsCheating.Assets.SteamIcon.png");
             standaloneTexture = LoadEmbeddedImage("WhoIsCheating.Assets.MetaIcon.png");
 
             if (fpPlatformRenderer != null)
             {
-                if (rig.concatStringOfCosmeticsAllowed.Contains("FIRST LOGIN"))
+                if (rig.concatStringOfCosmeticsAllowed.Contains("S. FIRST LOGIN"))
+                {
+                    fpPlatformRenderer.material.mainTexture = steamTexture;
+                }
+                else if (rig.concatStringOfCosmeticsAllowed.Contains("FIRST LOGIN"))
                 {
                     fpPlatformRenderer.material.mainTexture = pcTexture;
                 }
@@ -121,7 +128,11 @@ namespace WhoIsCheating
 
             if (tpPlatformRenderer != null)
             {
-                if (rig.concatStringOfCosmeticsAllowed.Contains("FIRST LOGIN"))
+                if (rig.concatStringOfCosmeticsAllowed.Contains("S. FIRST LOGIN"))
+                {
+                    tpPlatformRenderer.material.mainTexture = steamTexture;
+                }
+                else if(rig.concatStringOfCosmeticsAllowed.Contains("FIRST LOGIN"))
                 {
                     tpPlatformRenderer.material.mainTexture = pcTexture;
                 }
@@ -133,7 +144,7 @@ namespace WhoIsCheating
         }
 
         private static float lastTime = 0f;
-        private static float cooldown = 1f;
+        private static float cooldown = 2.5f;
         
         void Update()
         {
