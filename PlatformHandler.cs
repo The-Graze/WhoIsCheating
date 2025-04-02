@@ -143,8 +143,8 @@ namespace WhoIsCheating
             }
         }
 
-        private static float lastTime = 0f;
-        private static float cooldown = 5f;
+        private float lastTime = 0f;
+        private float cooldown = 5f;
         private bool hasHappened = false;
         
         void Update()
