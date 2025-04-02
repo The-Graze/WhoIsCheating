@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
@@ -11,25 +12,21 @@ namespace WhoIsCheating
     {
         public NameTagHandler nameTagHandler;
         public VRRig rig;
-        public Texture2D pcTexture;
-        public Texture2D steamTexture;
-        public Texture2D standaloneTexture;
 
-        public GameObject fpPlatformIcon;
-        public GameObject tpPlatformIcon;
-        public Renderer fpPlatformRenderer;
-        public Renderer tpPlatformRenderer;
+        public Texture2D pcTexture, steamTexture, standaloneTexture;
+
+        public GameObject fpPlatformIcon, tpPlatformIcon, firstPersonNameTag, thirdPersonNameTag;
+
+        public Renderer fpPlatformRenderer, tpPlatformRenderer, fpTextRenderer;
+
+        public Shader UIShader = Shader.Find("UI/Default");
 
         void Start()
         {
             pcTexture = LoadEmbeddedImage("WhoIsCheating.Assets.PCIcon.png");
             steamTexture = LoadEmbeddedImage("WhoIsCheating.Assets.SteamIcon.png");
             standaloneTexture = LoadEmbeddedImage("WhoIsCheating.Assets.MetaIcon.png");
-
-            if (fpPlatformIcon == null || tpPlatformIcon == null)
-            {
-                CreatePlatformIcons();
-            }
+            CreatePlatformIcons();
         }
 
         private Texture2D LoadEmbeddedImage(string resourcePath)
@@ -56,140 +53,86 @@ namespace WhoIsCheating
 
         public void CreatePlatformIcons()
         {
-            GameObject firstPersonNameTag = null;
-            GameObject thirdPersonNameTag = null;
-
-            foreach (Transform child in nameTagHandler.transform)
+            //This is a more officent way to do it than a foreach as i know the child names -Graze
+            if (firstPersonNameTag == null)
             {
-                if (child.name == "First Person NameTag")
-                {
-                    firstPersonNameTag = child.gameObject;
-                }
-                else if (child.name == "Third Person NameTag")
-                {
-                    thirdPersonNameTag = child.gameObject;
-                }
-            }
+                Transform tmpchild0 = transform.FindChildRecursive("First Person NameTag");
+                firstPersonNameTag = tmpchild0.FindChildRecursive("NameTag").gameObject;
 
-            if (firstPersonNameTag != null)
-            {
                 fpPlatformIcon = GameObject.CreatePrimitive(PrimitiveType.Quad);
                 fpPlatformIcon.name = "FP Platform Icon";
                 fpPlatformIcon.transform.SetParent(firstPersonNameTag.transform);
                 fpPlatformIcon.transform.localPosition = new Vector3(0f, 2.5f, 0f);
-                fpPlatformIcon.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+                fpPlatformIcon.transform.localScale = Vector3.one;
                 fpPlatformIcon.layer = firstPersonNameTag.layer;
 
                 Destroy(fpPlatformIcon.GetComponent<Collider>());
 
                 fpPlatformRenderer = fpPlatformIcon.GetComponent<Renderer>();
-                fpPlatformRenderer.material = new Material(Shader.Find("UI/Default"));
+                fpPlatformRenderer.material = new Material(UIShader);
             }
 
-            if (thirdPersonNameTag != null)
+            if (thirdPersonNameTag == null)
             {
+                Transform tmpchild1 = transform.FindChildRecursive("Third Person NameTag");
+                thirdPersonNameTag = tmpchild1.FindChildRecursive("NameTag").gameObject;
+
                 tpPlatformIcon = GameObject.CreatePrimitive(PrimitiveType.Quad);
                 tpPlatformIcon.name = "TP Platform Icon";
                 tpPlatformIcon.transform.SetParent(thirdPersonNameTag.transform);
                 tpPlatformIcon.transform.localPosition = new Vector3(0f, 2.5f, 0f);
-                tpPlatformIcon.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+                tpPlatformIcon.transform.localScale = Vector3.one;
                 tpPlatformIcon.layer = thirdPersonNameTag.layer;
 
                 Destroy(tpPlatformIcon.GetComponent<Collider>());
 
                 tpPlatformRenderer = tpPlatformIcon.GetComponent<Renderer>();
-                tpPlatformRenderer.material = new Material(Shader.Find("UI/Default"));
+                tpPlatformRenderer.material = new Material(UIShader);
             }
 
             UpdatePlatformPatchThingy();
         }
 
+        //this just makes it more readable -Graze
+        Texture GetPlatformTexture(string concat)
+        {
+            if (concat.Contains("S. FIRST LOGIN"))
+            {
+                return steamTexture;
+            }
+            else if (concat.Contains("FIRST LOGIN") || rig.OwningNetPlayer.GetPlayerRef().CustomProperties.Count() >= 2)
+            {
+                return pcTexture;
+            }
+            return standaloneTexture;
+        }
+
+        //this just makes it more readable -Graze
         public void UpdatePlatformPatchThingy()
         {
-            pcTexture = LoadEmbeddedImage("WhoIsCheating.Assets.PCIcon.png");
-            steamTexture = LoadEmbeddedImage("WhoIsCheating.Assets.SteamIcon.png");
-            standaloneTexture = LoadEmbeddedImage("WhoIsCheating.Assets.MetaIcon.png");
-
             if (fpPlatformRenderer != null)
             {
-                if (rig.concatStringOfCosmeticsAllowed.Contains("S. FIRST LOGIN"))
-                {
-                    fpPlatformRenderer.material.mainTexture = steamTexture;
-                }
-                else if (rig.concatStringOfCosmeticsAllowed.Contains("FIRST LOGIN"))
-                {
-                    fpPlatformRenderer.material.mainTexture = pcTexture;
-                }
-                else
-                {
-                    fpPlatformRenderer.material.mainTexture = standaloneTexture;
-                }
+                fpPlatformRenderer.material.mainTexture = GetPlatformTexture(rig.concatStringOfCosmeticsAllowed);
             }
-
             if (tpPlatformRenderer != null)
             {
-                if (rig.concatStringOfCosmeticsAllowed.Contains("S. FIRST LOGIN"))
-                {
-                    tpPlatformRenderer.material.mainTexture = steamTexture;
-                }
-                else if(rig.concatStringOfCosmeticsAllowed.Contains("FIRST LOGIN"))
-                {
-                    tpPlatformRenderer.material.mainTexture = pcTexture;
-                }
-                else
-                {
-                    tpPlatformRenderer.material.mainTexture = standaloneTexture;
-                }
+                tpPlatformRenderer.material.mainTexture = GetPlatformTexture(rig.concatStringOfCosmeticsAllowed);
             }
         }
 
-        void Update()
+        //Only the First person One is hidden so i changed this to do that
+        //no longer have to manualy set rotation etc as it is parented to the nametag Text Obj -Graze
+        void FixedUpdate()
         {
-            if (fpPlatformIcon != null && nameTagHandler != null)
+            if (fpPlatformIcon != null)
             {
-                Transform fpTextTransform = null;
-                foreach (Transform child in fpPlatformIcon.transform.parent)
+                if (fpTextRenderer == null)
                 {
-                    if (child.GetComponent<TextMesh>() != null)
-                    {
-                        fpTextTransform = child;
-                        break;
-                    }
+                    fpTextRenderer = fpPlatformIcon.transform.parent.GetComponent<Renderer>();
                 }
-
-                if (fpTextTransform != null)
+                else
                 {
-                    fpPlatformIcon.transform.rotation = fpTextTransform.rotation;
-
-                    Renderer textRenderer = fpTextTransform.GetComponent<Renderer>();
-                    if (textRenderer != null)
-                    {
-                        fpPlatformRenderer.forceRenderingOff = textRenderer.forceRenderingOff;
-                    }
-                }
-            }
-
-            if (tpPlatformIcon != null && nameTagHandler != null)
-            {
-                Transform tpTextTransform = null;
-                foreach (Transform child in tpPlatformIcon.transform.parent)
-                {
-                    if (child.GetComponent<TextMesh>() != null)
-                    {
-                        tpTextTransform = child;
-                        break;
-                    }
-                }
-
-                if (tpTextTransform != null)
-                {
-                    tpPlatformIcon.transform.rotation = tpTextTransform.rotation;
-
-                    Renderer textRenderer = tpTextTransform.GetComponent<Renderer>();
-                    if (textRenderer != null)
-                    {
-                        tpPlatformRenderer.forceRenderingOff = textRenderer.forceRenderingOff;
-                    }
+                    fpPlatformRenderer.forceRenderingOff = fpTextRenderer.forceRenderingOff;
                 }
             }
         }

@@ -1,18 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>netstandard2.1</TargetFramework>
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Assets\MetaIcon.png" />
     <None Remove="Assets\PCIcon.png" />
+    <None Remove="Assets\SteamIcon.png" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\MetaIcon.png" />
     <EmbeddedResource Include="Assets\PCIcon.png" />
+    <EmbeddedResource Include="Assets\SteamIcon.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -296,7 +298,7 @@
       <HintPath>$(GameAssemblyPath)\websocket-sharp.dll</HintPath>
     </Reference>
     <Reference Include="WhoIsTalking">
-      <HintPath>D:\Spel\Steam\steamapps\common\Gorilla Tag\BepInEx\plugins\WhoIsTalking\WhoIsTalking.dll</HintPath>
+      <HintPath>$(PluginsPath)\WhoIsTalking\WhoIsTalking.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
