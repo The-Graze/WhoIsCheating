@@ -15,12 +15,6 @@ namespace WhoIsCheating.Patches
             __instance.GetOrAddComponent<PlatformHandler>(out var NTH);
             NTH.nameTagHandler = __instance;
             NTH.rig = __instance.rig;
-            NTH.UpdatePlatformPatchThingy();
-
-            if (NTH.fpPlatformIcon == null || NTH.tpPlatformIcon == null)
-            {
-                NTH.CreatePlatformIcons();
-            }
         }
     }
 }
