@@ -143,17 +143,8 @@ namespace WhoIsCheating
             }
         }
 
-        private float lastTime = 0f;
-        private float cooldown = 2.5f;
-
         void Update()
         {
-            if (lastTime >= cooldown)
-            {
-                lastTime = 0f;
-                UpdatePlatformPatchThingy();
-            }
-
             if (fpPlatformIcon != null && nameTagHandler != null)
             {
                 Transform fpTextTransform = null;
@@ -201,8 +192,6 @@ namespace WhoIsCheating
                     }
                 }
             }
-
-            lastTime += Time.deltaTime;
         }
     }
 }
