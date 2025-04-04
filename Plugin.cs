@@ -9,7 +9,7 @@ namespace WhoIsCheating
     // This is your mod's main class.
     [BepInDependency("Graze.WhoIsTalking")]
     [BepInPlugin(PluginInfo.GUID, PluginInfo.Name, PluginInfo.Version)]
-	public class Plugin : BaseUnityPlugin
+    public class Plugin : BaseUnityPlugin
     {
         Plugin()
         {
