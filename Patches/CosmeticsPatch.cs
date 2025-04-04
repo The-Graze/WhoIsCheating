@@ -12,7 +12,7 @@ namespace WhoIsCheating.Patches
     {
         private static void Postfix(VRRig __instance)
         {
-            __instance.GetComponent<PlatformHandler>().UpdatePlatformPatchThingy();
+            __instance.GetOrAdd<PlatformHandler>().UpdatePlatformPatchThingy();
         }
     }
 }

@@ -14,8 +14,22 @@ namespace WhoIsCheating
         Plugin()
         {
             HarmonyPatches.ApplyHarmonyPatches();
-	    ExitGames.Client.Photon.Hashtable properties = new ExitGames.Client.Photon.Hashtable();
-            properties.Add("cheese is gouda", PluginInfo.Name);
+        }
+
+        void Start()
+        {
+            GorillaTagger.OnPlayerSpawned(Setup);
+        }
+
+        private void Setup()
+        {
+            CosmeticsV2Spawner_Dirty.OnPostInstantiateAllPrefabs += SetProp;
+        }
+
+        private void SetProp()
+        {
+            ExitGames.Client.Photon.Hashtable properties = NetworkSystem.Instance.LocalPlayer.GetPlayerRef().CustomProperties;
+            properties.AddOrUpdate("cheese is gouda", PluginInfo.Name);
             PhotonNetwork.LocalPlayer.SetCustomProperties(properties);
         }
     }
